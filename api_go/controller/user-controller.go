@@ -37,14 +37,11 @@ func (controller *userController) Save(context *gin.Context) entity.User {
 
 func (controller *userController) Login(context *gin.Context) (entity.User, error) {
 
-	var user entity.User
+	var loginRequest entity.LoginRequest
 
-	if err := context.ShouldBindJSON(&user); err != nil {
+	if err := context.ShouldBindJSON(&loginRequest); err != nil {
 		return entity.User{}, err
 	}
 
-	username := user.Username
-	password := user.Password
-
-	return controller.service.Login(username, password)
+	return controller.service.Login(loginRequest)
 }

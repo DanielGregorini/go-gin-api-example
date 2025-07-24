@@ -12,6 +12,7 @@ import (
 type AuthService interface {
     GenerateToken(user entity.User) (string, error)
     ValidateToken(tokenStr string) (*jwt.Token, error)
+    IsTokenValid(tokenStr string) bool
     IsIDInToken(tokenStr string, userID int) (bool, error)
 }
 
@@ -47,18 +48,26 @@ func (s *authService) ValidateToken(tokenStr string) (*jwt.Token, error) {
     })
 }
 
+func (s *authService) IsTokenValid(tokenStr string) bool {
+    token, err := s.ValidateToken(tokenStr)
+    if err != nil {
+        return false
+    }
+
+    return token.Valid
+}
+
+
 func (s *authService) IsIDInToken(tokenStr string, userID int) (bool, error) {
     token, err := s.ValidateToken(tokenStr)
     if err != nil {
         return false, err
     }
 
-    // Extrai as claims já tipadas
     claims, ok := token.Claims.(*jwt.RegisteredClaims)
     if !ok || !token.Valid {
         return false, fmt.Errorf("token inválido ou claims inesperadas")
     }
 
-    // Compara o Subject (string) com o userID esperado
     return claims.Subject == strconv.Itoa(userID), nil
 }

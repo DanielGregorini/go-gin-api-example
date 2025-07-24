@@ -8,7 +8,7 @@ import (
 type UserService interface {
 	Save(entity.User) entity.User
 	FindAll() []entity.User
-	Login(username, password string) (entity.User, error)
+	Login(loginRequest entity.LoginRequest) (entity.User, error)
 }
 
 type userService struct {
@@ -28,9 +28,9 @@ func (service *userService) FindAll() []entity.User {
 	return service.users
 }
 
-func (service *userService) Login(username, password string) (entity.User, error) {
+func (service *userService) Login(loginRequest entity.LoginRequest) (entity.User, error) {
 	for _, user := range service.users {
-		if user.Username == username && user.Password == password {
+		if user.Username == loginRequest.Username && user.Password == loginRequest.Password {
 			return user, nil
 		}
 	}
