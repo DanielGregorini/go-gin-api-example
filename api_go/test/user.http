@@ -17,22 +17,11 @@ POST http://localhost:8080/users
 Authorization: Bearer {{TOKEN}}
 
 {
-  "id": 1,
-  "username": "user",
-  "email": "email@email.com",
+
+  "username": "user1",
+  "email": "emaail@email.com",
   "password": "senha"
 }
 ####  
 
 GET http://localhost:8080/users
-
-
-
-#####
-POST https://cartao-ponto-git-main-daniel-mahl-gregorinis-projects.vercel.app/api/uset/login
-Content-Type: application/json
-
-{
-    "login" : "videosom",
-    "password" : "vs1710@VS"
-}
