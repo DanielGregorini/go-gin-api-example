@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/DanielGregorini/go-api-gin/controller"
 	"github.com/DanielGregorini/go-api-gin/service"
+	"github.com/DanielGregorini/go-api-gin/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,6 +17,8 @@ var (
 
 func main() {
 	server := gin.Default()
+
+	server.Use(middleware.PrintLogger())
 
 	server.GET("/videos", func(context *gin.Context) {
 		videos := videoController.FindAll()
