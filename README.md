@@ -12,3 +12,6 @@ docker run -d \
   -v api_go_data:/var/lib/postgresql/data \
   -p 5432:5432 \
   postgres:15
+
+
+psql -h localhost -U user -d api_go

@@ -2,92 +2,69 @@ package service
 
 import (
 	"errors"
-	"sync"
-
+	"gorm.io/gorm"
 	"github.com/DanielGregorini/go-api-gin/entity"
 )
 
 type VideoService interface {
-	Save(video entity.Video) entity.Video
-	FindAll() []entity.Video
+	Save(video entity.Video) (entity.Video, error)
+	FindAll() ([]entity.Video, error)
 	FindByID(id int) (entity.Video, error)
 	Update(video entity.Video) (entity.Video, error)
 	Delete(id int) error
 }
 
 type videoService struct {
-	mu      sync.Mutex
-	videos  []entity.Video
-	nextID  int
+	db *gorm.DB
 }
 
-func NewVideoService() VideoService {
-	return &videoService{
-		videos: make([]entity.Video, 0),
-		nextID: 1,
+func NewVideoService(db *gorm.DB) VideoService {
+	return &videoService{db: db}
+}
+
+func (s *videoService) Save(video entity.Video) (entity.Video, error) {
+	if err := s.db.Create(&video).Error; err != nil {
+		return entity.Video{}, err
 	}
+	
+	return video, nil
 }
 
-func (s *videoService) Save(video entity.Video) entity.Video {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+func (s *videoService) FindAll() ([]entity.Video, error) {
+	var videos []entity.Video
 
-	// atribui ID incremental
-	video.ID = s.nextID
-	s.nextID++
-	s.videos = append(s.videos, video)
-	return video
-}
+	if err := s.db.Find(&videos).Error; err != nil {
+		return nil, err
+	}
 
-func (s *videoService) FindAll() []entity.Video {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	// retorna cópia para evitar modificação externa
-	result := make([]entity.Video, len(s.videos))
-	copy(result, s.videos)
-	return result
+	return videos, nil
 }
 
 func (s *videoService) FindByID(id int) (entity.Video, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	var video entity.Video
 
-	for _, v := range s.videos {
-		if v.ID == id {
-			return v, nil
+	if err := s.db.First(&video, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return entity.Video{}, errors.New("vídeo nao encontrado")
 		}
+		return entity.Video{}, err
 	}
-	return entity.Video{}, errors.New("vídeo não encontrado")
+
+	return video, nil
 }
 
 func (s *videoService) Update(video entity.Video) (entity.Video, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	for i, v := range s.videos {
-		if v.ID == video.ID {
-			// atualiza campos
-			s.videos[i].UserID = video.UserID
-			s.videos[i].Title = video.Title
-			s.videos[i].Description = video.Description
-			s.videos[i].URL = video.URL
-			return s.videos[i], nil
-		}
+	if err := s.db.Save(&video).Error; err != nil {
+		return entity.Video{}, err
 	}
-	return entity.Video{}, errors.New("vídeo não encontrado")
+
+	return video, nil
 }
 
 func (s *videoService) Delete(id int) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	for i, v := range s.videos {
-		if v.ID == id {
-			// remove do slice
-			s.videos = append(s.videos[:i], s.videos[i+1:]...)
-			return nil
-		}
+	if err := s.db.Delete(&entity.Video{}, id).Error; err != nil {
+		return err
 	}
-	return errors.New("vídeo não encontrado")
+
+	return nil
 }

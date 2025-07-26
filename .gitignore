@@ -21,3 +21,5 @@
 go.work
 go.work.sum
 api_go/.env
+
+*.vscode
