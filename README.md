@@ -31,27 +31,35 @@ Edite o arquivo `api_go/.env` e insira o conteúdo abaixo. Escolha a seção apr
 
 # \--- Configurações para rodar com Docker Compose (RECOMENDADO) ---
 
-# Descomente esta parte e comente a seção "Para rodar localmente"
 
 SECRET\_KEY=ad1m4e3z1S42fDb4RPbzfd1xCb7d37Dj6af06eDe047e86
+
 DB\_HOST=db \# 'db' é o nome do serviço do banco no Docker Compose
+
 DB\_PORT=5432
+
 DB\_USER=user
+
 DB\_PASS=user
+
 DB\_NAME=api\_go
+
 DB\_SSLMODE=disable
 
 # \--- Configurações para rodar localmente (sem Docker Compose para o banco) ---
 
-# Descomente esta parte e comente a seção "Para rodar com Docker Compose"
-
-# SECRET\_KEY=ad1m4e3z1S42fDb4RPbzfd1xCb7d37Dj6af06eDe047e86
+SECRET\_KEY=ad1m4e3z1S42fDb4RPbzfd1xCb7d37Dj6af06eDe047e86
 
 DB\_HOST=localhost \# 'localhost' se o banco estiver rodando diretamente na sua máquina
+
 DB\_PORT=5432
+
 DB\_USER=user
+
 DB\_PASS=user
+
 DB\_NAME=api\_go
+
 DB\_SSLMODE=disable
 
 **Importante**: Mantenha apenas uma das seções (Docker Compose ou Local) descomentada no seu arquivo `.env` para evitar conflitos.
