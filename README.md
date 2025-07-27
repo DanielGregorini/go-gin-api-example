@@ -47,17 +47,12 @@ DB\_SSLMODE=disable
 
 # SECRET\_KEY=ad1m4e3z1S42fDb4RPbzfd1xCb7d37Dj6af06eDe047e86
 
-# DB\_HOST=localhost \# 'localhost' se o banco estiver rodando diretamente na sua máquina
-
-# DB\_PORT=5432
-
-# DB\_USER=user
-
-# DB\_PASS=user
-
-# DB\_NAME=api\_go
-
-# DB\_SSLMODE=disable
+DB\_HOST=localhost \# 'localhost' se o banco estiver rodando diretamente na sua máquina
+DB\_PORT=5432
+DB\_USER=user
+DB\_PASS=user
+DB\_NAME=api\_go
+DB\_SSLMODE=disable
 
 **Importante**: Mantenha apenas uma das seções (Docker Compose ou Local) descomentada no seu arquivo `.env` para evitar conflitos.
 
