@@ -3,8 +3,9 @@ package service
 import (
 	"errors"
 
-	"github.com/DanielGregorini/go-api-gin/entity"
 	"gorm.io/gorm"
+
+	"github.com/DanielGregorini/go-api-gin/entity"
 )
 
 type UserService interface {
@@ -28,6 +29,7 @@ func (s *userService) Save(user entity.User) (entity.User, error) {
 	if err := s.db.Create(&user).Error; err != nil {
 		return entity.User{}, err
 	}
+
 	return user, nil
 }
 
@@ -36,6 +38,11 @@ func (s *userService) FindAll() ([]entity.User, error) {
 	if err := s.db.Find(&users).Error; err != nil {
 		return nil, err
 	}
+
+	for i := range users {
+		users[i].Password = ""
+	}
+	
 	return users, nil
 }
 
@@ -47,6 +54,9 @@ func (s *userService) FindByID(id int) (entity.User, error) {
 		}
 		return entity.User{}, err
 	}
+
+	user.Password = ""
+
 	return user, nil
 }
 
@@ -54,6 +64,7 @@ func (s *userService) Update(user entity.User) (entity.User, error) {
 	if err := s.db.Save(&user).Error; err != nil {
 		return entity.User{}, err
 	}
+
 	return user, nil
 }
 
@@ -61,17 +72,22 @@ func (s *userService) Delete(id int) error {
 	if err := s.db.Delete(&entity.User{}, id).Error; err != nil {
 		return err
 	}
+
 	return nil
 }
 
 func (s *userService) Login(req entity.LoginRequest) (entity.User, error) {
 	var user entity.User
+
 	if err := s.db.Where("username = ? AND password = ?", req.Username, req.Password).
 		First(&user).Error; err != nil {
+
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return entity.User{}, errors.New("usuário ou senha incorretos")
 		}
+
 		return entity.User{}, err
 	}
+
 	return user, nil
 }

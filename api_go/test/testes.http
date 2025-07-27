@@ -1,0 +1,96 @@
+@URL=http://localhost:8080/login
+@TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4IiwiZXhwIjoxNzU0MTc5MjEyLCJpYXQiOjE3NTM1NzQ0MTJ9.wmL_vgPkaPXs8zG12pKXIo06csjQyp3Bj67y9DSn8gs
+
+
+### LOGIN - autenticação
+# Retorna um token JWT
+POST http://localhost:8080/login
+Content-Type: application/json
+
+{
+  "username": "user3",
+  "password": "senha"
+}
+
+
+### CREATE USER
+
+POST http://localhost:8080/users
+Content-Type: application/json
+
+{
+  "username": "user3",
+  "email": "emaaeisl@email.com",
+  "password": "senha"
+}
+
+
+### GET ALL USERS
+
+GET http://localhost:8080/users
+Authorization: Bearer {{TOKEN}}
+
+
+### GET USER BY ID
+GET http://localhost:8080/users/1
+Authorization: Bearer {{TOKEN}}
+
+
+### UPDATE USER
+PUT http://localhost:8080/users/8
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "id": 8,
+  "username": "userr",
+  "email": "newemail@email.com",
+  "password": "senha"
+}
+
+
+### DELETE USER
+DELETE http://localhost:8080/users/1
+Authorization: Bearer {{TOKEN}}
+
+
+### CREATE VIDEO
+POST http://localhost:8080/videos
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "user_id": 8,
+  "title": "Meu vídeo lEWEWEegal",
+  "description": "Descrição do vídeo",
+  "url": "https://exemplo.com/video.mp4"
+}
+
+
+### GET ALL VIDEOS
+GET http://localhost:8080/videos
+Authorization: Bearer {{TOKEN}}
+
+
+### GET VIDEO BY ID
+GET http://localhost:8080/videos/1
+Authorization: Bearer {{TOKEN}}
+
+
+### UPDATE VIDEO
+PUT http://localhost:8080/videos/2
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "id": 2,
+  "user_id": 8,
+  "title": "Vídeo atuahdfdghfghgfhgfhlizado",
+  "description": "Nova descrição",
+  "url": "https://exemplo.com/video-atualizado.mp4"
+}
+
+
+### DELETE VIDEO
+DELETE http://localhost:8080/videos/2
+Authorization: Bearer {{TOKEN}}

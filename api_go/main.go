@@ -24,7 +24,7 @@ var (
 	userController controller.UserController = controller.NewUserController(userService, authService)
 
 	videoService    service.VideoService       = service.NewVideoService(dbConn)
-	videoController controller.VideoController = controller.NewVideoController(videoService)
+	videoController controller.VideoController = controller.NewVideoController(videoService, authService)
 )
 
 func main() {

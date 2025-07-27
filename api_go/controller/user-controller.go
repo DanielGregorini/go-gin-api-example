@@ -1,9 +1,10 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
-	
+
 	"github.com/DanielGregorini/go-api-gin/entity"
 	"github.com/DanielGregorini/go-api-gin/service"
 	"github.com/gin-gonic/gin"
@@ -68,15 +69,30 @@ func (ctl *userController) Save(context *gin.Context) {
 		return
 	}
 
+	fmt.Print(created)
+
 	context.JSON(http.StatusCreated, created)
 }
 
 func (ctl *userController) Update(context *gin.Context) {
-
 	id, err := strconv.Atoi(context.Param("id"))
 
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		return
+	}
+
+	oldUser, err := ctl.userService.FindByID(id)
+
+	if err != nil {
+		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	token := ctl.authService.ExtractTokenFromContext(context)
+
+	if idInToken, err := ctl.authService.IsIDInToken(token, oldUser.ID); !idInToken || err != nil {
+		context.JSON(http.StatusForbidden, gin.H{"error": "não autorizado"})
 		return
 	}
 
@@ -87,7 +103,7 @@ func (ctl *userController) Update(context *gin.Context) {
 		return
 	}
 
-	user.ID = id
+	user.ID = oldUser.ID
 
 	updated, err := ctl.userService.Update(user)
 
@@ -107,6 +123,20 @@ func (ctl *userController) Delete(context *gin.Context) {
 		return
 	}
 
+	oldUser, err := ctl.userService.FindByID(id)
+
+	if err != nil {
+		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	token := ctl.authService.ExtractTokenFromContext(context)
+
+	if idInToken, err := ctl.authService.IsIDInToken(token, oldUser.ID); !idInToken || err != nil {
+		context.JSON(http.StatusForbidden, gin.H{"error": "não autorizado"})
+		return
+	}
+
 	if err := ctl.userService.Delete(id); err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -117,6 +147,7 @@ func (ctl *userController) Delete(context *gin.Context) {
 
 func (ctl *userController) Login(context *gin.Context) {
 	var req entity.LoginRequest
+
 	if err := context.ShouldBindJSON(&req); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -133,5 +164,6 @@ func (ctl *userController) Login(context *gin.Context) {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao gerar token"})
 		return
 	}
+
 	context.JSON(http.StatusOK, gin.H{"token": token, "user": user})
 }

@@ -2,7 +2,9 @@ package service
 
 import (
 	"errors"
+
 	"gorm.io/gorm"
+
 	"github.com/DanielGregorini/go-api-gin/entity"
 )
 
@@ -45,7 +47,7 @@ func (s *videoService) FindByID(id int) (entity.Video, error) {
 
 	if err := s.db.First(&video, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return entity.Video{}, errors.New("vídeo nao encontrado")
+			return entity.Video{}, errors.New("vídeo não encontrado")
 		}
 		return entity.Video{}, err
 	}

@@ -3,10 +3,13 @@ package service
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
-	"github.com/DanielGregorini/go-api-gin/entity"
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+
+	"github.com/DanielGregorini/go-api-gin/entity"
 )
 
 type AuthService interface {
@@ -14,6 +17,7 @@ type AuthService interface {
 	ValidateToken(tokenStr string) (*jwt.Token, error)
 	IsTokenValid(tokenStr string) bool
 	IsIDInToken(tokenStr string, userID int) (bool, error)
+	ExtractTokenFromContext(context *gin.Context) (string)
 }
 
 type authService struct {
@@ -25,7 +29,6 @@ func NewAuthService(secret string) AuthService {
 }
 
 func (s *authService) GenerateToken(user entity.User) (string, error) {
-
 	claims := jwt.RegisteredClaims{
 		Subject:   strconv.Itoa(user.ID),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -37,9 +40,13 @@ func (s *authService) GenerateToken(user entity.User) (string, error) {
 }
 
 func (s *authService) ValidateToken(tokenStr string) (*jwt.Token, error) {
-	// ParseWithClaims já faz o parsing direto em RegisteredClaims
+
+	if tokenStr == "" {
+		return nil, fmt.Errorf("token vazio")
+	}
+	
 	return jwt.ParseWithClaims(tokenStr, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
-		// Verifica o método de assinatura
+	
 		if token.Method.Alg() != jwt.SigningMethodHS256.Alg() {
 			return nil, fmt.Errorf("método de assinatura inesperado: %v", token.Header["alg"])
 		}
@@ -63,9 +70,27 @@ func (s *authService) IsIDInToken(tokenStr string, userID int) (bool, error) {
 	}
 
 	claims, ok := token.Claims.(*jwt.RegisteredClaims)
+
 	if !ok || !token.Valid {
 		return false, fmt.Errorf("token inválido ou claims inesperadas")
 	}
 
 	return claims.Subject == strconv.Itoa(userID), nil
+}
+
+func (s *authService) ExtractTokenFromContext(context *gin.Context) (string) {
+	authHeader := context.GetHeader("Authorization")
+
+	if authHeader == "" {
+		return ""
+	}
+
+	if !strings.HasPrefix(authHeader, "Bearer ") {
+		return ""
+	}
+
+	token := strings.TrimPrefix(authHeader, "Bearer ")
+	token = strings.TrimSpace(token)
+
+	return token
 }

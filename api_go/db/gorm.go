@@ -3,12 +3,12 @@ package db
 import (
     "log"
     "time"
+    
+    "gorm.io/driver/postgres"
+    "gorm.io/gorm"
 
     "github.com/DanielGregorini/go-api-gin/config"
     "github.com/DanielGregorini/go-api-gin/entity"
-
-    "gorm.io/driver/postgres"
-    "gorm.io/gorm"
 )
 
 func Connect(cfg *config.Config) *gorm.DB {
