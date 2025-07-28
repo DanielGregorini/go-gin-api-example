@@ -27,16 +27,33 @@ func NewVideoController(srcVideo service.VideoService, authService service.AuthS
 }
 
 func (ctl *videoController) FindAll(context *gin.Context) {
-	users, err := ctl.videoService.FindAll()
+	page := 1
+	pageSize := 20
+
+	if p := context.Query("page"); p != "" {
+		if v, err := strconv.Atoi(p); err == nil && v > 0 {
+			page = v
+		}
+	}
+	if ps := context.Query("page_size"); ps != "" {
+		if v, err := strconv.Atoi(ps); err == nil && v > 0 {
+			pageSize = v
+		}
+	}
+
+	response, err := ctl.videoService.FindAll(page, pageSize)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	context.JSON(http.StatusOK, users)
+
+	context.JSON(http.StatusOK, response)
 }
+
 
 func (ctl *videoController) FindByID(context *gin.Context) {
 	id, err := strconv.Atoi(context.Param("id"))
+
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
 		return

@@ -10,7 +10,7 @@ import (
 
 type VideoService interface {
 	Save(video entity.Video) (entity.Video, error)
-	FindAll() ([]entity.Video, error)
+	FindAll(page int, pageSize int) (entity.PaginatedResponse[entity.Video], error)
 	FindByID(id int) (entity.Video, error)
 	Update(video entity.Video) (entity.Video, error)
 	Delete(id int) error
@@ -32,15 +32,34 @@ func (s *videoService) Save(video entity.Video) (entity.Video, error) {
 	return video, nil
 }
 
-func (s *videoService) FindAll() ([]entity.Video, error) {
+func (s *videoService) FindAll(page int, pageSize int) (entity.PaginatedResponse[entity.Video], error) {
 	var videos []entity.Video
+	var totalItems int64
 
-	if err := s.db.Find(&videos).Error; err != nil {
-		return nil, err
+	if err := s.db.Model(&entity.Video{}).Count(&totalItems).Error; err != nil {
+		return entity.PaginatedResponse[entity.Video]{}, err
 	}
 
-	return videos, nil
+	offset := (page - 1) * pageSize
+	if err := s.db.Limit(pageSize).Offset(offset).Find(&videos).Error; err != nil {
+		return entity.PaginatedResponse[entity.Video]{}, err
+	}
+
+	totalPages := int((totalItems + int64(pageSize) - 1) / int64(pageSize))
+
+	response := entity.PaginatedResponse[entity.Video]{
+		Data:        videos,
+		Page:        page,
+		PageSize:    pageSize,
+		TotalItems:  int(totalItems),
+		TotalPages:  totalPages,
+		HasNext:     page < totalPages,
+		HasPrevious: page > 1,
+	}
+
+	return response, nil
 }
+
 
 func (s *videoService) FindByID(id int) (entity.Video, error) {
 	var video entity.Video
